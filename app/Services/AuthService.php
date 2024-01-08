@@ -26,7 +26,7 @@ class AuthService
             return $token;
         } else {
 
-            $informações = DB::table('users')
+            $information = DB::table('users')
                 ->join('companies', 'users.fk_companie', '=', 'companies.id')
                 ->select(
                     'users.id',
@@ -39,7 +39,7 @@ class AuthService
                 ->where('email', $email)
                 ->get();
 
-            return ['Token' => $token, 'User' => $informações];
+            return ['Token' => $token, 'User' => $information];
         }
     }
 

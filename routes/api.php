@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,19 +16,20 @@ use App\Http\Controllers\AuthController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
 Route::prefix('v1')->group(function() {
 
-    Route::prefix('authentication')->group(function(){
-        Route::post('login', [AuthController::class, 'login']);
-        Route::post('logout', [AuthController::class, 'logout']);
+    // Rotas de Autenticação
+    Route::prefix('/authentication')->group(function(){
+        Route::post('/login', [AuthController::class, 'login']);
+        Route::post('/logout', [AuthController::class, 'logout']);
     });
-
-    Route::prefix('home')->middleware('jwt.auth')->group(function(){
-
+    
+    // Rotas do Módulo de Administrador
+    Route::prefix('/administrator')->middleware('jwt.auth')->group(function(){
+        Route::get('/search', [UserController::class, 'getAll']);
+        Route::post('/registration', [UserController::class, 'registration']);
+        Route::put('/deactivation/{id}', [UserController::class, 'deactivation']);
+        Route::put('/activate/{id}', [UserController::class, 'activate']);
     });
 
 });
