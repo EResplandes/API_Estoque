@@ -31,4 +31,13 @@ class AuthController extends Controller
         return response()->json(['Response' => 'Usuário deslogado com sucesso!']); // Retornando resposta
 
     }
+
+    public function check(Request $request)
+    {
+
+        $query = $this->authService->checkToken($request); // Consulta para verificar se token está valido
+        return response()->json(['Response' => $query]);
+
+    }
+
 }

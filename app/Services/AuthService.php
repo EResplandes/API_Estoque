@@ -43,7 +43,7 @@ class AuthService
         }
     }
 
-    public function verificaToken($request)
+    public function checkToken($request)
     {
 
         // Pegando token

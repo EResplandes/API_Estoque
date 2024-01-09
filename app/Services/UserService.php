@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use App\Jobs\SendRegistrationEmail;
+
 
 class UserService
 {
@@ -25,9 +27,8 @@ class UserService
                 'companies.name AS company_name'  // Alias para o campo 'name' da tabela 'companies'
             )
             ->get();
-        
-        return $informations;
 
+        return $informations;
     }
 
     public function registrationUser($request)
@@ -37,21 +38,23 @@ class UserService
         $sizePassword = 10; // Defina o comprimento da cadeia desejado
         $email = $request->input('email'); // Definindo email 
         $cpf = $cpf_formatado; // Definindo cpf
-        $passowrd = Str::random($sizePassword); // Gerando senha
+        $password = Str::random($sizePassword); // Gerando senha
 
         $informations = [
             'name' => strtoupper($request->input('name')),
             'cpf' => $cpf_formatado,
             'email' => $request->input('email'),
-            'password' => bcrypt($passowrd),
+            'password' => bcrypt($password),
             'status' => 'ATIVO',
             'fk_companie' => $request->input('fk_companie'),
             'fk_office' => $request->input('fk_office'),
         ];
 
-        DB::table('users')->insert($informations); // Cadastrando novo usuário
+        SendRegistrationEmail::dispatch($email, $cpf, $password);
 
-        return Mail::to($email)->send(new RegistrationUserMail($cpf, $passowrd)); // Enviando e-mail de confirmação com credenciais
+        return DB::table('users')->insert($informations); // Cadastrando novo usuário
+
+        // return Mail::to($email)->send(new RegistrationUserMail($cpf, $passowrd)); // Enviando e-mail de confirmação com credenciais
 
     }
 
@@ -59,7 +62,7 @@ class UserService
     {
 
         return DB::table('users')->where('id', $id)->update(['status' => 'DESATIVADO']); // Desativando usuário
-        
+
     }
 
     public function activateUser($id)
@@ -85,5 +88,4 @@ class UserService
 
         return $cpfFormatado;
     }
-
 }
