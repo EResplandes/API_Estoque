@@ -1,12 +1,18 @@
 <x-mail::message>
+    
     # Olá, tudo bem?
-    <br>
 
-    Credenciais de acesso ao nosso sistema de Controle de Contracheque:<br>
-    Usuário: {{ $cpf }} <br>
-    Senha: {{ $password }}<br>
+    Aqui estão as suas credenciais de acesso ao nosso sistema de Controle de Contracheque:
 
-    Grato,<br>
+    **Usuário:**
+    {{ $cpf }}
+
+    **Senha:**
+    {{ $password }}
+
+    Caso tenha qualquer dúvida ou problema, não hesite em entrar em contato conosco.
+
+    Grato,
     Departamento de TI
 
 

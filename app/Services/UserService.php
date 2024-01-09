@@ -2,10 +2,7 @@
 
 namespace App\Services;
 
-use App\Mail\RegistrationUserMail;
-use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Jobs\SendRegistrationEmail;
 
@@ -50,9 +47,23 @@ class UserService
             'fk_office' => $request->input('fk_office'),
         ];
 
-        SendRegistrationEmail::dispatch($email, $cpf, $password);
+        DB::table('users')->insert($informations); // Cadastrando novo usuário
 
-        return DB::table('users')->insert($informations); // Cadastrando novo usuário
+        $permissions = $request->input('permissionsUser');
+
+        $arrayPermissions = explode(", ", $permissions); // Transformando em array
+
+        $latestUser = DB::table('users')->latest('id')->select('id')->first(); // Pegando id do usuário
+
+        $queryRegister = $this->registerPermissions($arrayPermissions, $latestUser); // Registrando permissões
+
+        if ($queryRegister) {
+            SendRegistrationEmail::dispatch($email, $cpf, $password); // Chamando job de envio de e-mail
+            return true;
+        } else {
+            dd('deu ruim!');
+            return false;
+        }
 
         // return Mail::to($email)->send(new RegistrationUserMail($cpf, $passowrd)); // Enviando e-mail de confirmação com credenciais
 
@@ -87,5 +98,20 @@ class UserService
         $cpfFormatado = substr_replace($cpfFormatado, '-', 11, 0);
 
         return $cpfFormatado;
+    }
+
+    public function registerPermissions($arrayPermissions, $latestUser)
+    {   
+
+        // Inseriondo permissões do usuário
+        foreach ($arrayPermissions as $permissions) {
+            DB::table('users_permissions')->insert([
+                'fk_permission' => (int) $permissions,
+                'fk_user' => (int) $latestUser->id,
+            ]);
+        }
+
+        return true;
+
     }
 }
