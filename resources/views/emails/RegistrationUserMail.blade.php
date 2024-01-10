@@ -2,7 +2,7 @@
     
     # Olá, tudo bem?
 
-    Aqui estão as suas credenciais de acesso ao nosso sistema de Controle de Contracheque:
+    Aqui estão as suas credenciais de acesso ao nosso sistema de Controle de Estoque:
 
     **Usuário:**
     {{ $cpf }}

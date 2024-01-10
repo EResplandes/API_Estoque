@@ -26,6 +26,7 @@ class AuthService
             return $token;
         } else {
 
+            // Pegando informações do usuário
             $information = DB::table('users')
                 ->join('companies', 'users.fk_companie', '=', 'companies.id')
                 ->select(
@@ -39,7 +40,20 @@ class AuthService
                 ->where('email', $email)
                 ->get();
 
-            return ['Token' => $token, 'User' => $information];
+            // Verificando se tem registro
+            if ($information->count() > 0) {
+
+                $firstItem = $information->first(); // Obtenha o primeiro item
+                $userId = $firstItem->id;           // Acesse o id do primeiro item
+            }
+
+            // Pegando permissões do usuário
+            $permissions = DB::table('users_permissions')
+                ->join('permissions', 'users_permissions.fk_permission', '=', 'permissions.id')
+                ->select('permissions.slug')
+                ->where('fk_user', $userId)->get();
+
+            return ['Token' => $token, 'User' => $information, 'Permissions' => $permissions]; // Retornando resposta para a requisição
         }
     }
 
@@ -75,8 +89,7 @@ class AuthService
         $token = $request->input('token'); // Armazenando token
 
         $query = auth('api')->logout($token); // Colocando token na blacklist
-        
-        return $query;
 
+        return $query;
     }
 }

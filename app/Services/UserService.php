@@ -49,23 +49,18 @@ class UserService
 
         DB::table('users')->insert($informations); // Cadastrando novo usuário
 
-        $permissions = $request->input('permissionsUser');
-
-        $arrayPermissions = explode(", ", $permissions); // Transformando em array
+        $permissions = $request->input('permissionsUser'); // Pegando as permissões
 
         $latestUser = DB::table('users')->latest('id')->select('id')->first(); // Pegando id do usuário
 
-        $queryRegister = $this->registerPermissions($arrayPermissions, $latestUser); // Registrando permissões
+        $queryRegister = $this->registerPermissions($permissions, $latestUser); // Registrando permissões
 
         if ($queryRegister) {
             SendRegistrationEmail::dispatch($email, $cpf, $password); // Chamando job de envio de e-mail
-            return true;
+            return 'Usuário cadastrado com sucesso!';
         } else {
-            dd('deu ruim!');
-            return false;
+            return 'Ocorreu algum problema, entre em contato como o Administrador do sistema!';
         }
-
-        // return Mail::to($email)->send(new RegistrationUserMail($cpf, $passowrd)); // Enviando e-mail de confirmação com credenciais
 
     }
 
@@ -101,7 +96,7 @@ class UserService
     }
 
     public function registerPermissions($arrayPermissions, $latestUser)
-    {   
+    {
 
         // Inseriondo permissões do usuário
         foreach ($arrayPermissions as $permissions) {
@@ -112,6 +107,5 @@ class UserService
         }
 
         return true;
-
     }
 }

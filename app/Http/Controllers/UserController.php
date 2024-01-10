@@ -25,10 +25,10 @@ class UserController extends Controller
     }
 
     public function registration(UserRequest $request)
-    {
-
+    {        
+     
         $query = $this->userService->registrationUser($request); // Query responsável por cadastrar o usuário
-        return response()->json(['Response' => 'Usuário cadastro com sucesso!']);
+        return response()->json(['Response' => $query], 200);
 
     }
 

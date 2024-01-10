@@ -41,6 +41,7 @@ class UserRequest extends FormRequest
             '*.integer' => 'O campo :attribute deve ser um inteiro!',
             '*.unique' => 'O campo :attribute já está cadastrado!',
             'cpf.digits_between' => 'O campo CPF deve conter 11 caracteres!',
+            'email.email' => 'O campo EMAIL não é valído!'
         ];
     }
 
