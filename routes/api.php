@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\StockController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 
@@ -32,6 +33,14 @@ Route::prefix('v1')->group(function() {
         Route::post('/registration', [UserController::class, 'registration']);
         Route::put('/deactivation/{id}', [UserController::class, 'deactivation']);
         Route::put('/activate/{id}', [UserController::class, 'activate']);
+    });
+
+    // Rotas do Módulo de Almoxarifado
+    Route::prefix('/stock')->middleware('jwt.auth')->group(function(){
+        Route::get('/search', [StockController::class, 'getAll']);
+        Route::get('/category', [StockController::class, 'getCategory']);
+        Route::post('/registration', [StockController::class, 'registration']);
+        Route::post('filter', [StockController::class, 'filter']);
     });
 
 });
