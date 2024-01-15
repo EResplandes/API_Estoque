@@ -18,6 +18,7 @@ class StockService
             ->join('category', 'category.id', '=', 'stock.fk_category')
             ->join('companies', 'companies.id', '=', 'stock.fk_companie')
             ->select(
+                'stock.id AS id_stock', 
                 'stock.name AS material_name',
                 'stock.description',
                 'stock.amount',
@@ -35,7 +36,7 @@ class StockService
     public function getCategory()
     {
 
-        $query = DB::table('category')->get(); // Pegando todas as categorias
+        $query = DB::table('category')->select('id', 'name')->get(); // Pegando todas as categorias
         return $query; // Retornando resposta
 
     }
