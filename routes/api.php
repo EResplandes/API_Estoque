@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RequestsController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -37,10 +38,17 @@ Route::prefix('v1')->group(function() {
 
     // Rotas do Módulo de Almoxarifado
     Route::prefix('/stock')->middleware('jwt.auth')->group(function(){
-        Route::get('/search', [StockController::class, 'getAll']);
+        Route::get('/search/{id}', [StockController::class, 'getAll']);
         Route::get('/category', [StockController::class, 'getCategory']);
         Route::post('/registration', [StockController::class, 'registration']);
         Route::post('filter', [StockController::class, 'filter']);
     });
+
+    // Rotas do Módulo de Pedidos
+    Route::prefix('/requests')->middleware('jwt.auth')->group(function() {
+        Route::get('/search/{id}', [RequestsController::class, 'search']);
+        Route::post('/registration' , [RequestsController::class, 'registration']);
+    });
+
 
 });

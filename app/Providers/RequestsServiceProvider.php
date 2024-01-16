@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Services\StockService;
+use App\Services\RequestsService;
 
 class StockServiceProvider extends ServiceProvider
 {
@@ -14,8 +14,8 @@ class StockServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(StockService::class, function ($app){
-            return new StockService();
+        $this->app->singleton(RequestsService::class, function ($app){
+            return new RequestsService();
         });
     }
 

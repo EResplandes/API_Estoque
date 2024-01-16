@@ -35,6 +35,7 @@ class AuthService
                     'users.email',
                     'users.cpf',
                     'users.status',
+                    'companies.id AS company_id',
                     'companies.name AS company_name'  // Alias para o campo 'name' da tabela 'companies'
                 )
                 ->where('email', $email)

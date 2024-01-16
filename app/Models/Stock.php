@@ -9,12 +9,18 @@ class Stock extends Model
 {
     use HasFactory;
 
+    protected $table = 'stock';
+
     protected $fillable = [
-        'name', 
-        'description', 
+        'name',
+        'description',
         'amount',
         'dt_validity',
         'fk_companie'
     ];
 
+    protected $hidden = [
+        'created_at',
+        'updated_at'
+    ];
 }

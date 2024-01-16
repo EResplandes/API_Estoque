@@ -18,10 +18,10 @@ class StockController extends Controller
 
     }
 
-    public function getAll()
+    public function getAll($id)
     {
 
-        $query = $this->stockService->getAll(); // Pegando todos os itens do estoque
+        $query = $this->stockService->getAll($id); // Pegando todos os itens do estoque
         return response()->json(['Response' => $query]); // Retornando resposta para a requisição
 
     }

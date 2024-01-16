@@ -10,7 +10,7 @@ use App\Jobs\SendRegistrationEmail;
 class StockService
 {
 
-    public function getAll()
+    public function getAll($id)
     {
 
         // Pegando todos os itens com suas devidas categorias
@@ -27,6 +27,7 @@ class StockService
                 'category.name AS category_name',
                 'stock.image_directory'
             )
+            ->where('stock.fk_companie', $id)
             ->get(); // Pegando todos os produtos
 
         return $query; // Retornando resposta
@@ -82,6 +83,7 @@ class StockService
             ->join('category', 'category.id', '=', 'stock.fk_category')
             ->join('companies', 'companies.id', '=', 'stock.fk_companie')
             ->select(
+                'stock.id AS id_stock', 
                 'stock.name AS material_name',
                 'stock.description',
                 'stock.amount',
