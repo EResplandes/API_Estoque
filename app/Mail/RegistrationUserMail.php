@@ -13,16 +13,16 @@ class RegistrationUserMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $cpf, $password;
+    public $email_user, $password;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($cpf, $password)
+    public function __construct($email_user, $password)
     {
-        $this->cpf = $cpf;
+        $this->email_user = $email_user;
         $this->password = $password;
     }
 

@@ -24,7 +24,7 @@ class AuthRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required|emai',
+            'email' => 'required|email|unique:users',
             'password' => 'required'
         ];
     }
@@ -34,6 +34,7 @@ class AuthRequest extends FormRequest
         return [
             'email.required' => 'O campo E-MAIL é obrigatório!',
             'email.email' => 'O campo E-MAIL não é um e-mail valído!',
+            'email.unique' => 'O E-MAIL informado já está cadastrado!',
             'password.required' => 'O campo PASSWORD é obrigatório!'
         ];
     }

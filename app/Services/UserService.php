@@ -34,7 +34,7 @@ class UserService
         $cpf_formatado = $this->replaceCPF($request->input('cpf')); // Formatando CPF
         $sizePassword = 10; // Defina o comprimento da cadeia desejado
         $email = $request->input('email'); // Definindo email 
-        $cpf = $cpf_formatado; // Definindo cpf
+        $email_user = $request->input('email'); // Definindo email 
         $password = Str::random($sizePassword); // Gerando senha
 
         $informations = [
@@ -56,7 +56,7 @@ class UserService
         $queryRegister = $this->registerPermissions($permissions, $latestUser); // Registrando permissões
 
         if ($queryRegister) {
-            SendRegistrationEmail::dispatch($email, $cpf, $password); // Chamando job de envio de e-mail
+            SendRegistrationEmail::dispatch($email, $email_user, $password); // Chamando job de envio de e-mail
             return 'Usuário cadastrado com sucesso!';
         } else {
             return 'Ocorreu algum problema, entre em contato como o Administrador do sistema!';

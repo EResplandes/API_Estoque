@@ -36,8 +36,17 @@ class AuthController extends Controller
     {
 
         $query = $this->authService->checkToken($request); // Consulta para verificar se token está valido
-        return response()->json(['Response' => $query]);
+        return response()->json(['Response' => $query]); // Retornando resposta
 
     }
+
+    public function first(Request $request)
+    {
+
+        $query = $this->authService->firstAccess($request); // Consulta para alterar status do primeiro acesso como false
+        return response()->json(['Response' => $query]); // Retornando respsota
+
+    }
+
 
 }

@@ -4,9 +4,6 @@
 
     Aqui estão as suas credenciais de acesso ao nosso sistema de Controle de Estoque:
 
-    **Usuário:**
-    {{ $cpf }}
-
     **Senha:**
     {{ $password }}
 

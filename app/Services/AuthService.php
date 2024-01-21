@@ -35,6 +35,7 @@ class AuthService
                     'users.email',
                     'users.cpf',
                     'users.status',
+                    'users.first_login',
                     'companies.id AS company_id',
                     'companies.name AS company_name'  // Alias para o campo 'name' da tabela 'companies'
                 )
@@ -92,5 +93,33 @@ class AuthService
         $query = auth('api')->logout($token); // Colocando token na blacklist
 
         return $query;
+    }
+
+    public function firstAccess($request)
+    {
+
+        $id = $request->input('id'); // Pega id
+
+        // Salva informações
+        $informations = [
+            'first_login' => 0,
+            'password' => bcrypt($request->input('new_password'))
+        ];
+
+        // Valida senhas iguais
+        if ($request->input('new_password') != $request->input('confirmation')) {
+            return 'As senhas não coincidem!';
+        } else if (empty($request->input('new_password')) || empty($request->input('confirmation'))) {
+            return 'Os campos não foram preenchidos!';
+        } else {
+            $query = DB::table('users')->where('id', $id)->update($informations); // Alterando senha e first_login
+        }
+
+        // Retornando resposta para a requisição
+        if ($query == 1) {
+            return 'Senha atualizada com sucesso!';
+        } else {
+            return 'Ocorreu algum problema, entre em contato com o administrador!';
+        }
     }
 }

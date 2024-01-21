@@ -16,6 +16,8 @@ return new class extends Migration
         Schema::create('requests', function (Blueprint $table) {
             $table->id();
             $table->dateTime('dt_opening');
+            $table->string('observations');
+            $table->string('application');
             $table->unsignedBigInteger('fk_status');
             $table->unsignedBigInteger('fk_user');
             $table->foreign('fk_status')->references('id')->on('order_status');

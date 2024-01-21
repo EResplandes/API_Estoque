@@ -23,6 +23,7 @@ return new class extends Migration
             $table->enum('status', ['ATIVO', 'DESATIVADO']);
             $table->unsignedBigInteger('fk_companie');
             $table->unsignedBigInteger('fk_office');
+            $table->boolean('first_login');
             $table->foreign('fk_companie')->references('id')->on('companies');
             $table->foreign('fk_office')->references('id')->on('offices');
             $table->rememberToken();

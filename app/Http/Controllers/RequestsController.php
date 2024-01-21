@@ -34,4 +34,20 @@ class RequestsController extends Controller
 
     }
 
+    public function searchWarehouse($id)
+    {
+
+        $query = $this->requestsService->getWarehouse($id); // Metódo responsável por pegar todos os pedidos de acordo com a empresa
+        return response()->json(['Response' => $query]); // Retornando resposta
+        
+    }
+
+    public function getProducts($id)
+    {
+
+        $query = $this->requestsService->getProducts($id); // Metódo que pega itens do pedido de acordo com numero do pedido
+        return response()->json(['Response' => $query]); // Retornando resposta
+
+    }
+
 }

@@ -19,6 +19,11 @@ return new class extends Migration
             $table->char('description');
             $table->integer('amount');
             $table->dateTime('dt_validity');
+            $table->unsignedBigInteger('fk_companie');
+            $table->unsignedBigInteger('fk_category');
+            $table->string('image_directory');
+            $table->foreign('fk_companie')->references('id')->on('companies');
+            $table->foreign('fk_category')->references('id')->on('category');
             $table->timestamps();
         });
     }

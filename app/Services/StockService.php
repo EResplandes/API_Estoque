@@ -3,9 +3,6 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use App\Jobs\SendRegistrationEmail;
-
 
 class StockService
 {
@@ -18,7 +15,7 @@ class StockService
             ->join('category', 'category.id', '=', 'stock.fk_category')
             ->join('companies', 'companies.id', '=', 'stock.fk_companie')
             ->select(
-                'stock.id AS id_stock', 
+                'stock.id AS id_stock',
                 'stock.name AS material_name',
                 'stock.description',
                 'stock.amount',
@@ -71,7 +68,7 @@ class StockService
         }
     }
 
-    public function filterProducts($request)
+    public function filterProducts($request, $id)
     {
 
         $filters = [
@@ -83,7 +80,7 @@ class StockService
             ->join('category', 'category.id', '=', 'stock.fk_category')
             ->join('companies', 'companies.id', '=', 'stock.fk_companie')
             ->select(
-                'stock.id AS id_stock', 
+                'stock.id AS id_stock',
                 'stock.name AS material_name',
                 'stock.description',
                 'stock.amount',
@@ -91,7 +88,8 @@ class StockService
                 'companies.name AS companie_name',
                 'category.name AS category_name',
                 'stock.image_directory'
-            );
+            )
+            ->where('stock.fk_companie', $id);
 
         // Aplicar filtros
         if ($filters['name']) {
@@ -102,10 +100,63 @@ class StockService
             $query->where('stock.fk_category', $filters['fk_category']);
         }
 
+
         // Executar a consulta e retornar os resultados
         $filteredProducts = $query->get();
 
         return $filteredProducts; // Retornando resposta
 
+    }
+
+    public function approvalRequest($request, $id)
+    {
+
+        // Pegando informações
+        $informations = [
+            'observations' => $request->input('observation'),
+            'fk_status' => 2
+        ];
+
+        $query = DB::table('requests')->where('id', $id)->update($informations); // Query responsável por aprovar pedido
+
+        // Pegando itens do pedido com suas respectivas quantidades
+        $products = DB::table('application_materials')->where('fk_request', $id)->select(['fk_material', 'amount'])->get();
+
+        // Subtraindo a quantidade aprovada do total disponível na tabela 'stock'
+        foreach ($products as $product) {
+            $productId = $product->fk_material;
+            $approvedAmount = $product->amount;
+
+            // Atualizando a tabela 'stock' subtraindo a quantidade aprovada
+            DB::table('stock')
+                ->where('id', $productId)
+                ->decrement('amount', $approvedAmount);
+        }
+
+        // Verificando se ocorreu a atualização no banco
+        if ($query) {
+            return 'Pedido aprovado com sucesso!'; // Retornando resposta
+        } else {
+            return 'Ocorreu algum problema, entre em contato com o administrador do sistema!'; // Retornando resposta
+        }
+    }
+
+    public function disapproveRequest($request, $id)
+    {
+
+        // Pegando informações
+        $informations = [
+            'observations' => $request->input('observation'),
+            'fk_status' => 4
+        ];
+
+        $query = DB::table('requests')->where('id', $id)->update($informations); // Query responsável por reprovar pedido
+
+        // Verificando se ocorreu a atualização no banco
+        if ($query) {
+            return 'Pedido reprovado com sucesso!'; // Retornando resposta
+        } else {
+            return 'Ocorreu algum problema, entre em contato com o administrador do sistema!'; // Retornando resposta
+        }
     }
 }

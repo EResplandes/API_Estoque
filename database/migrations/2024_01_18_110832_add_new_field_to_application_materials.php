@@ -13,16 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('application_materials', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('fk_request');
-            $table->unsignedBigInteger('fk_material');
-            $table->integer('amount');
+        Schema::table('application_materials', function (Blueprint $table) {
             $table->integer('amount_approved')->nullable();
             $table->boolean('status')->nullable();
-            $table->foreign('fk_request')->references('id')->on('requests');
-            $table->foreign('fk_material')->references('id')->on('stock');
-            $table->timestamps();
         });
     }
 
@@ -33,6 +26,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('application_materials');
+        Schema::table('application_materials', function (Blueprint $table) {
+            //
+        });
     }
 };

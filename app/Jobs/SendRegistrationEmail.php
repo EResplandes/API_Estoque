@@ -17,19 +17,19 @@ class SendRegistrationEmail implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $email;
-    protected $cpf;
+    protected $email_user;
     protected $password;
 
-    public function __construct($email, $cpf, $password)
+    public function __construct($email, $email_user, $password)
     {
         $this->email = $email;
-        $this->cpf = $cpf;
+        $this->email_user = $email_user;
         $this->password = $password;
     }
 
     public function handle()
     {
-        Mail::to($this->email)->send(new RegistrationUserMail($this->cpf, $this->password));
+        Mail::to($this->email)->send(new RegistrationUserMail($this->email_user, $this->password));
     }
 
 }
