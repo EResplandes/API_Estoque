@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('requests', function (Blueprint $table) {
             $table->id();
             $table->dateTime('dt_opening');
-            $table->string('observations');
+            $table->string('observations')->nullable();
             $table->string('application');
             $table->unsignedBigInteger('fk_status');
             $table->unsignedBigInteger('fk_user');

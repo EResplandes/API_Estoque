@@ -76,7 +76,6 @@ class RequestsService
             'dt_opening' => Carbon::now('America/Sao_Paulo'),
             'fk_status' => 1,
             'fk_user' => $request->input('fk_user'),
-            'observations' => $request->input('observations'),
             'application' => $request->input('application'),
         ];
 

@@ -57,6 +57,11 @@ class StockService
             'fk_category' => $request->input('fk_category'),
         ];
 
+        // Validação de quantidade
+        if ($informations['amount'] <= 0) {
+            return 'A quantidade do produto não pode ser 0 ou um valor negativo!';
+        }
+
         // Validação de imagem
         if ($imgProduct != '') {
 
