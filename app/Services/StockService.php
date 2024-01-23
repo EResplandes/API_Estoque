@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 class StockService
 {
 
-    public function getAll($id)
+    public function getAll()
     {
 
         // Pegando todos os itens com suas devidas categorias
@@ -24,11 +24,32 @@ class StockService
                 'category.name AS category_name',
                 'stock.image_directory'
             )
-            ->where('stock.fk_companie', $id)
             ->get(); // Pegando todos os produtos
 
         return $query; // Retornando resposta
 
+    }
+
+    public function getMy($id)
+    {
+        // Pegando todos os itens com suas devidas categorias
+        $query = DB::table('stock')
+            ->join('category', 'category.id', '=', 'stock.fk_category')
+            ->join('companies', 'companies.id', '=', 'stock.fk_companie')
+            ->select(
+                'stock.id AS id_stock',
+                'stock.name AS material_name',
+                'stock.description',
+                'stock.amount',
+                'stock.dt_validity',
+                'companies.name AS companie_name',
+                'category.name AS category_name',
+                'stock.image_directory'
+            )
+            ->where('companies.id', $id)
+            ->get(); // Pegando todos os produtos
+
+        return $query; // Retornando resposta
     }
 
     public function getCategory()

@@ -40,7 +40,8 @@ Route::prefix('v1')->group(function () {
 
     // Rotas do Módulo de Almoxarifado
     Route::prefix('/stock')->middleware('jwt.auth')->group(function () {
-        Route::get('/search/{id}', [StockController::class, 'getAll']);
+        Route::get('/search', [StockController::class, 'getAll']);
+        Route::get('/mystock/{id}', [StockController::class, 'getMy']);
         Route::get('/category', [StockController::class, 'getCategory']);
         Route::post('/registration', [StockController::class, 'registration']);
         Route::post('/filter/{id}', [StockController::class, 'filter'])->middleware('validate.id');

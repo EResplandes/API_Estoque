@@ -158,6 +158,7 @@ class RequestsService
                 'order_status.status as order_status'
             )
             ->where('companies.id', $id) // Adiciona a condição para filtrar por id da empresa
+            ->orderBy('requests.id', 'DESC')
             ->get();
 
         // Agrupa os materiais por pedido no resultado
@@ -189,6 +190,7 @@ class RequestsService
 
         $query = DB::table('application_materials')
             ->join('stock', 'stock.id', '=', 'application_materials.fk_material')
+            ->join('companies', 'companies.id', '=', 'stock.fk_companie')
             ->select(
                 'application_materials.id AS id_application',
                 'application_materials.amount AS quantity_application',
@@ -196,7 +198,9 @@ class RequestsService
                 'stock.name',
                 'stock.description',
                 'stock.amount AS quantity_stock',
-                'stock.dt_validity'
+                'stock.dt_validity',
+                'stock.fk_companie',
+                'companies.name AS stock_origin'
             )
             ->where('application_materials.fk_request', $id)
             ->get();
