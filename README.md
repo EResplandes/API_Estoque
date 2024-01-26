@@ -1,66 +1,272 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Documentação da API - Laravel
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A documentação a seguir descreve as rotas da API Laravel, organizadas em módulos, para um sistema que envolve autenticação, gerenciamento de usuários, operações de estoque e pedidos.
 
-## About Laravel
+**Versão da API: v1**
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Autenticação
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 1. Login
+Realiza a autenticação do usuário e fornece um token JWT.
 
-## Learning Laravel
+- **URL**: `/v1/authentication/login`
+- **Método**: `POST`
+- **Parâmetros do corpo da requisição**:
+  - `email` (string): E-mail do usuário.
+  - `password` (string): Senha do usuário.
+- **Retorno bem-sucedido**:
+  - Status: 200 OK
+  - Corpo: Token JWT válido.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 2. Logout
+Realiza o logout do usuário, invalidando o token JWT.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- **URL**: `/v1/authentication/logout`
+- **Método**: `POST`
+- **Cabeçalhos**:
+  - `Authorization`: Bearer [Token JWT]
+- **Retorno bem-sucedido**:
+  - Status: 200 OK
+  - Corpo: Mensagem de logout bem-sucedido.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 3. Verificar Token
+Verifica se o token JWT fornecido é válido.
 
-## Laravel Sponsors
+- **URL**: `/v1/authentication/check`
+- **Método**: `POST`
+- **Cabeçalhos**:
+  - `Authorization`: Bearer [Token JWT]
+- **Retorno bem-sucedido**:
+  - Status: 200 OK
+  - Corpo: Mensagem indicando que o token é válido.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+### 4. Primeiro Acesso (Apenas com Token)
+Verifica se o usuário está acessando o sistema pela primeira vez após o login.
 
-### Premium Partners
+- **URL**: `/v1/authentication/first`
+- **Método**: `POST`
+- **Cabeçalhos**:
+  - `Authorization`: Bearer [Token JWT]
+- **Retorno bem-sucedido**:
+  - Status: 200 OK
+  - Corpo: Mensagem indicando o status do primeiro acesso.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+---
 
-## Contributing
+## Módulo de Administrador
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 5. Listar Usuários
+Obtém uma lista de todos os usuários.
 
-## Code of Conduct
+- **URL**: `/v1/administrator/search`
+- **Método**: `GET`
+- **Cabeçalhos**:
+  - `Authorization`: Bearer [Token JWT]
+- **Retorno bem-sucedido**:
+  - Status: 200 OK
+  - Corpo: Lista de usuários.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 6. Registrar Usuário
+Registra um novo usuário no sistema.
 
-## Security Vulnerabilities
+- **URL**: `/v1/administrator/registration`
+- **Método**: `POST`
+- **Cabeçalhos**:
+  - `Authorization`: Bearer [Token JWT]
+- **Parâmetros do corpo da requisição**:
+  - `name` (string): Nome do usuário.
+  - `email` (string): E-mail do usuário.
+  - `password` (string): Senha do usuário.
+- **Retorno bem-sucedido**:
+  - Status: 200 OK
+  - Corpo: Mensagem indicando o sucesso do registro.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 7. Desativar Usuário
+Desativa um usuário existente.
 
-## License
+- **URL**: `/v1/administrator/deactivation/{id}`
+- **Método**: `PUT`
+- **Cabeçalhos**:
+  - `Authorization`: Bearer [Token JWT]
+- **Parâmetros da URL**:
+  - `id` (int): ID do usuário a ser desativado.
+- **Retorno bem-sucedido**:
+  - Status: 200 OK
+  - Corpo: Mensagem indicando a desativação bem-sucedida.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 8. Ativar Usuário
+Ativa um usuário desativado.
+
+- **URL**: `/v1/administrator/activate/{id}`
+- **Método**: `PUT`
+- **Cabeçalhos**:
+  - `Authorization`: Bearer [Token JWT]
+- **Parâmetros da URL**:
+  - `id` (int): ID do usuário a ser ativado.
+- **Retorno bem-sucedido**:
+  - Status: 200 OK
+  - Corpo: Mensagem indicando a ativação bem-sucedida.
+
+---
+
+## Módulo de Almoxarifado
+
+### 9. Listar Produtos no Estoque
+Obtém uma lista de todos os produtos no estoque.
+
+- **URL**: `/v1/stock/search`
+- **Método**: `GET`
+- **Cabeçalhos**:
+  - `Authorization`: Bearer [Token JWT]
+- **Retorno bem-sucedido**:
+  - Status: 200 OK
+  - Corpo: Lista de produtos no estoque.
+
+### 10. Meu Estoque
+Obtém uma lista de produtos no estoque do usuário autenticado.
+
+- **URL**: `/v1/stock/mystock/{id}`
+- **Método**: `GET`
+- **Cabeçalhos**:
+  - `Authorization`: Bearer [Token JWT]
+- **Parâmetros da URL**:
+  - `id` (int): ID do usuário autenticado.
+- **Retorno bem-sucedido**:
+  - Status: 200 OK
+  - Corpo: Lista de produtos no estoque do usuário.
+
+### 11. Listar Categorias
+Obtém uma lista de todas as categorias de produtos no estoque.
+
+- **URL**: `/v1/stock/category`
+- **Método**: `GET`
+- **Cabeçalhos**:
+  - `Authorization`: Bearer [Token JWT]
+- **Retorno bem-sucedido**:
+  - Status: 200 OK
+  - Corpo: Lista de categorias.
+
+### 12. Registrar Produto
+Registra um novo produto no estoque.
+
+- **URL**: `/v1/stock/registration`
+- **Método**: `POST`
+- **Cabeçalhos**:
+  - `Authorization`: Bearer [Token JWT]
+- **Parâmetros do corpo da requisição**:
+  - `name` (string): Nome do produto.
+  - `quantity` (int): Quantidade do produto.
+  - `category_id` (int): ID da categoria do produto.
+- **Retorno bem-sucedido**:
+  - Status: 200 OK
+  - Corpo: Mensagem indicando o sucesso do registro.
+
+### 13. Filtrar Produtos (Aprovação)
+Filtra produtos no estoque que requerem aprovação.
+
+- **URL**: `/v1/stock/filter/{id}`
+- **Método**: `POST`
+- **Cabeçalhos**:
+  - `Authorization`: Bearer [Token JWT]
+- **Parâmetros da URL**:
+  - `id` (int): ID do usuário autenticado.
+- **Parâmetros do corpo da requisição**:
+  - `approval_status` (boolean): Status de aprovação.
+- **Retorno bem-sucedido**:
+  - Status: 200 OK
+  - Corpo: Lista de produtos filtrados.
+
+### 14. Aprovar Produto
+Aprova a inclusão de um produto no estoque.
+
+- **URL**: `/v1/stock/approval/{id}`
+- **Método**: `PUT`
+- **Cabeçalhos**:
+  - `Authorization`: Bearer [Token JWT]
+- **Parâmetros da URL**:
+  - `id` (int): ID do produto a ser aprovado.
+- **Retorno bem-sucedido**:
+  - Status: 200 OK
+  - Corpo: Mensagem indicando a aprovação bem-sucedida.
+
+### 15. Reprovar Produto
+Reprova a inclusão de um produto no estoque.
+
+- **URL**: `/v1/stock/disapprove/{id}`
+- **Método**: `PUT`
+- **Cabeçalhos**:
+  - `Authorization`: Bearer [Token JWT]
+- **Parâmetros da URL**:
+  - `id` (int): ID do produto a ser reprovado.
+- **Retorno bem-sucedido**:
+  - Status: 200 OK
+  - Corpo: Mensagem indicando a reprovação bem-sucedida.
+
+---
+
+## Módulo de Pedidos
+
+### 16. Buscar Pedidos
+Busca pedidos com base no ID do usuário.
+
+- **URL**: `/v1/requests/search/{id}`
+- **Método**: `GET`
+- **Cabeçalhos**:
+  - `Authorization`: Bearer [Token JWT]
+- **Parâmetros da URL**:
+  - `id` (int): ID do usuário autenticado.
+- **Retorno bem-sucedido**:
+  - Status: 200 OK
+  - Corpo: Lista de pedidos.
+
+### 17. Buscar Todos os Pedidos (Armazém)
+Busca todos os pedidos para gerenciamento de armazém.
+
+- **URL**: `/v1/requests/searchAll/{id}`
+- **Método**: `GET`
+- **Cabeçalhos**:
+  - `Authorization`: Bearer [Token JWT]
+- **Parâmetros da URL**:
+  - `id` (int): ID do usuário autenticado.
+- **Retorno bem-sucedido**:
+  - Status: 200 OK
+  - Corpo: Lista de todos os pedidos para gerenciamento de armazém.
+
+### 18. Obter Produtos do Pedido
+Obtém a lista de produtos de um pedido específico.
+
+- **URL**: `/v1/requests/products/{id}`
+- **Método**: `GET`
+- **Cabeçalhos**:
+  - `Authorization`: Bearer [Token JWT]
+- **Parâmetros da URL**:
+  - `id` (int): ID do pedido.
+- **Retorno bem-sucedido**:
+  - Status: 200 OK
+  - Corpo: Lista de produtos do pedido.
+
+### 19. Registrar Pedido
+Registra um novo pedido no sistema.
+
+- **URL**: `/v1/requests/registration`
+- **Método**: `POST`
+- **Cabeçalhos**:
+  - `Authorization`: Bearer [Token JWT]
+- **Parâmetros do corpo da requisição**:
+  - `user_id` (int): ID do usuário que fez o pedido.
+  - `products` (array): Lista de produtos no pedido.
+- **Retorno bem-sucedido**:
+  - Status: 200 OK
+  - Corpo: Mensagem indicando o sucesso do registro.
+
+---
+
+**Observações:**
+- Todas as rotas são prefixadas com `/v1`.
+- A autenticação JWT é necessária para acessar as rotas protegidas.
+- Alguns endpoints possuem validações adicionais, como validação de ID e status de aprovação/disaprovação.
+- Certifique-se de incluir o token JWT válido nos cabeçalhos das requisições protegidas.
+
+Esta documentação fornece uma visão geral das principais operações da API. Certifique-se de consultar a lógica de negócios em seus controladores para obter detalhes específicos sobre a implementação.
