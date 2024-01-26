@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RequestsController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\TransferController;
 use App\Http\Controllers\UserController;
 use App\Services\StockService;
 use Illuminate\Support\Facades\Auth;
@@ -55,5 +56,10 @@ Route::prefix('v1')->group(function () {
         Route::get('/searchAll/{id}', [RequestsController::class, 'searchWarehouse'])->middleware('validate.id');
         Route::get('/products/{id}', [RequestsController::class, 'getProducts'])->middleware('validate.id');
         Route::post('/registration', [RequestsController::class, 'registration']);
+    });
+
+    // Rotas do Módulo de Transfêrencia de Estoque
+    Route::prefix('/transfer')->middleware('jwt.auth')->group(function () {
+        Route::post('/solicitation', [TransferController::class, 'solicitation']);
     });
 });

@@ -13,28 +13,24 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('material_transfer', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('fk_material');
-            $table->unsignedBigInteger('fk_request');
+        Schema::table('material_transfer', function (Blueprint $table) {
+            $table->unsignedBigInteger('fk_request')->before('destiny');
             $table->integer('quantity_request');
             $table->dateTime('requested_date');
-            $table->dateTime('response_date')->nullable();
+            $table->dateTime('response_date');
             $table->unsignedBigInteger('fk_status');
-            $table->foreign('fk_material')->references('id')->on('stock');
             $table->foreign('fk_request')->references('id')->on('requests');
             $table->foreign('fk_status')->references('id')->on('transfer_status');
-            $table->timestamps();
         });
     }
 
-    /**
+    /**s
      * Reverse the migrations.
      *
      * @return void
      */
     public function down()
     {
-        Schema::dropIfExists('material_transfer');
+        //
     }
 };

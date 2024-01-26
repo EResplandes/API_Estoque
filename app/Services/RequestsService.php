@@ -193,6 +193,7 @@ class RequestsService
             ->join('companies', 'companies.id', '=', 'stock.fk_companie')
             ->select(
                 'application_materials.id AS id_application',
+                'stock.id AS id_material',
                 'application_materials.amount AS quantity_application',
                 'application_materials.status AS status_application',
                 'stock.name',
