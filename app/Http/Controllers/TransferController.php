@@ -21,7 +21,21 @@ class TransferController extends Controller
         $query = $this->transferService->solicitation($request); // Registrando solicitação de transferência de estoque
         return response()->json(['Response' => $query]); // Retornando resposta
 
+    }
 
-        dd('teste');
+    public function approval($id)
+    {
+
+        $query = $this->transferService->approval($id); // Aprovando solitação de transferência de material
+        return response()->json(['Response' => $query]); // Retornando resposta
+
+    }
+
+    public function mysolicitations($id)
+    {
+
+        $query = $this->transferService->mysolicitations($id); // Pegando todas minhas solicitações
+        return response()->json(['Response' => $query]); // Retornando resposta
+
     }
 }

@@ -16,7 +16,7 @@ class TransferService
         $infomations = [
             'fk_material' => $request->input('fk_material'),
             'fk_request' => $request->input('fk_request'),
-            'requested_date' => Carbon::now('America/Sao_Paulo'),
+            'requested_date' => Carbon::now(),
             'fk_status' => 1,
         ];
 
@@ -28,19 +28,71 @@ class TransferService
             ->get();
 
         // 3º Passo -> Inserindo a quantidade solicitado no array
-        $infomations['quantity_request'] = $amount;
-
-
-        dd($amount[0]->amount);
+        $infomations['quantity_request'] = $amount[0]->amount;
 
         // 4º Passo -> Inserir dados na tabela de transferências de material
         $insert = DB::table('material_transfer')->insert($infomations);
 
-        // 5º Passo -> Validando inserção
+        // 5º Passo -> Resposta para a requisição
         if ($insert) {
             return 'Transferência solicatada com sucesso!';
         } else {
             return 'Ocorreu algum problema, entre em contato com o administrador!';
         }
+    }
+
+    public function approval($id)
+    {
+
+        // 1º Passo -> Alterar o status da solicitação para APROVADO
+        $query = DB::table('material_transfer')
+            ->where('id', $id)
+            ->update(['fk__status' => 3]);
+
+        // 2º Passo -> Resposta para a requisição
+        if ($query) {
+            return 'Transferência de material aprovada com sucesso!';
+        } else {
+            return 'Ocorreu algum problema, entre em contato com o administrador!';
+        }
+    }
+
+    public function confirmationReceipt($id)
+    {
+    }
+
+    public function disapproval($request, $id)
+    {
+
+        // 1º Passo -> Pegar a justificativa da reprovação
+        $observation = $request->input('observation');
+
+        // 2º Passo -> Alterar status da solicitação para REPROVADO e Adicionar a observação
+        $query = DB::table('material_transfer')
+            ->where('id', $id)
+            ->update(['observation' => $observation, 'fk_status' => 5]);
+
+        // 3º Passo -> Reposta para a requisiçãos
+        if ($query) {
+            return 'Transferência de material reprovada com sucesso!';
+        } else {
+            return 'Ocorreu algum problema, entre em contato com o administrador!';
+        }
+    }
+
+    public function mysolicitations($id)
+    {
+
+        // 1º Passo -> Pegar todas as solicitações que o usuário fez
+        // 2º Passo -> Resposta para a requisição com todos as solicitações
+
+    }
+
+    public function requestForMe($id)
+    {
+
+        // 1º Passo -> Pegar todas as solicitações feitas para meu estoque
+        // 2º Passo -> Resposta para a requisição com todas as solicitações
+
     }
 }
