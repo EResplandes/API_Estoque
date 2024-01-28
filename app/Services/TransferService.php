@@ -49,6 +49,8 @@ class TransferService
             ->where('id', $id)
             ->update(['fk__status' => 3]);
 
+        // 2º Passo -> Retirar itens do estoque
+
         // 2º Passo -> Resposta para a requisição
         if ($query) {
             return 'Transferência de material aprovada com sucesso!';
