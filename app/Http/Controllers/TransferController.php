@@ -31,6 +31,14 @@ class TransferController extends Controller
 
     }
 
+    public function disapproval(Request $request, $id)
+    {
+
+        $query = $this->transferService->disapproval($request, $id); // Reprovando a solicitação de transferência de material
+        return response()->json(['Response' => $query]); // Retornando resposta
+
+    }
+
     public function mysolicitations($id)
     {
 

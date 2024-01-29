@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('fk_material');
             $table->unsignedBigInteger('fk_request');
             $table->integer('quantity_request');
+            $table->string('observation');
             $table->dateTime('requested_date');
             $table->dateTime('response_date')->nullable();
             $table->unsignedBigInteger('fk_status');
