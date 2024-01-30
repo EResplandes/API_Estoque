@@ -46,4 +46,12 @@ class TransferController extends Controller
         return response()->json(['Response' => $query]); // Retornando resposta
 
     }
+
+    public function requestForMe($id)
+    {
+
+        $query = $this->transferService->requestForMe($id); // Pegando todas solicitações para meu estoque
+        return response()->json(['Response' => $query]); // Retornando a resposta
+
+    }
 }
