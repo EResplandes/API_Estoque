@@ -14,31 +14,43 @@ class TransferService
 
         // 1º Passo -> Pegar Informações da requisição
         $infomations = [
-            'fk_material' => $request->input('fk_material'),
             'fk_request' => $request->input('fk_request'),
             'requested_date' => Carbon::now('America/Sao_Paulo'),
             'fk_status' => 1,
         ];
 
-        // 2ª Passo -> Pegar quantidade solicitada do material
-        $amount = DB::table('application_materials')
-            ->select('amount')
-            ->where('fk_request', $infomations['fk_request'])
-            ->where('fk_material', $infomations['fk_material'])
-            ->get();
+        // Obter array de IDs de materiais
+        $fk_materials = $request->input('fk_material');
 
-        // 3º Passo -> Inserindo a quantidade solicitado no array
-        $infomations['quantity_request'] = $amount[0]->amount;
+        // Transformando json em array
+        $arrayMaterials = json_decode($fk_materials, true);
 
-        // 4º Passo -> Inserir dados na tabela de transferências de material
-        $insert = DB::table('material_transfer')->insert($infomations);
+        foreach ($arrayMaterials as $fk_material) {
+            // 2ª Passo -> Pegar quantidade solicitada do material
+            $amount = DB::table('application_materials')
+                ->select('amount')
+                ->where('fk_request', $infomations['fk_request'])
+                ->where('fk_material', $fk_material['id'])
+                ->first();
+
+            if ($amount) {
+                // 3º Passo -> Inserir dados na tabela de transferências de material
+                $infomations['fk_material'] = $fk_material['id'];
+                $infomations['quantity_request'] = $amount->amount;
+
+                $insert = DB::table('material_transfer')->insert($infomations);
+
+                // Verificar se a inserção foi bem-sucedida para cada material
+                if (!$insert) {
+                    return 'Ocorreu algum problema ao inserir a transferência de material para o ID: ' . $fk_material['id'];
+                }
+            } else {
+                return 'A quantidade solicitada para o material com o ID ' . $fk_material['id'] . ' não foi encontrada.';
+            }
+        }
 
         // 5º Passo -> Resposta para a requisição
-        if ($insert) {
-            return 'Transferência solicatada com sucesso!';
-        } else {
-            return 'Ocorreu algum problema, entre em contato com o administrador!';
-        }
+        return 'Transferências solicitadas com sucesso!';
     }
 
     public function approval($id)

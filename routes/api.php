@@ -66,4 +66,5 @@ Route::prefix('v1')->group(function () {
         Route::get('/solicitations/{id}', [TransferController::class, 'mysolicitations']);
         Route::get('/solicitations/forme/{id}', [TransferController::class, 'requestForMe']);
     });
+    
 });
