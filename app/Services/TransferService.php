@@ -89,6 +89,7 @@ class TransferService
         $query = DB::table('material_transfer')->where('id', $id)->update(['status' => 4]);
 
         // 2ª Passo -> Pegar dados do item da solicitação
+        dd('teste');
 
         // 3ª Passo -> Cadastrar item no meu estoque
 
