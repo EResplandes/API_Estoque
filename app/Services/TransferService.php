@@ -22,10 +22,7 @@ class TransferService
         // Obter array de IDs de materiais
         $fk_materials = $request->input('fk_material');
 
-        // Transformando json em array
-        $arrayMaterials = json_decode($fk_materials, true);
-
-        foreach ($arrayMaterials as $fk_material) {
+        foreach ($fk_materials as $fk_material) {
             // 2ª Passo -> Pegar quantidade solicitada do material
             $amount = DB::table('application_materials')
                 ->select('amount')
@@ -34,6 +31,7 @@ class TransferService
                 ->first();
 
             if ($amount) {
+
                 // 3º Passo -> Inserir dados na tabela de transferências de material
                 $infomations['fk_material'] = $fk_material['id'];
                 $infomations['quantity_request'] = $amount->amount;
