@@ -65,6 +65,6 @@ Route::prefix('v1')->group(function () {
         Route::put('/disapproval/{id}', [TransferController::class, 'disapproval']);
         Route::get('/solicitations/{id}', [TransferController::class, 'mysolicitations']);
         Route::get('/solicitations/forme/{id}', [TransferController::class, 'requestForMe']);
+        Route::get('/exists/{id}', [TransferController::class, 'checkRequest']);
     });
-    
 });

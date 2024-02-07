@@ -23,7 +23,7 @@ class TransferService
         $fk_materials = $request->input('fk_material');
 
         foreach ($fk_materials as $fk_material) {
-            // 2ª Passo -> Pegar quantidade solicitada do material
+            // 2ª Passo -> Pegar quantidade solicitad'a do material
             $amount = DB::table('application_materials')
                 ->select('amount')
                 ->where('fk_request', $infomations['fk_request'])
@@ -72,7 +72,9 @@ class TransferService
                 ->decrement('amount', $informations[0]->quantity_request);
         }
 
-        // 4º Passo -> Resposta para a requisição
+        // 4ª Passo -> Inserir no estoque do solicitante
+
+        // 5º Passo -> Resposta para a requisição
         if ($removeItens) {
             return 'Transferência de material aprovada com sucesso!';
         } else {
@@ -158,5 +160,19 @@ class TransferService
 
         // 3º Passo -> Resposta para a requisição com todas as solicitações
         return response()->json(['Response' => $requestsforMe]);
+    }
+
+    public function checkRequest($id)
+    {
+
+        // 1º Passo -> Verificar se tem alguma solicitação de transferencia desse pedido
+        $query = DB::table('material_transfer')->where('fk_request', $id)->exists();
+
+        // 2ª Passo -> Retornar resposta
+        if ($query) {
+            return 'A solicitação já foi realizada!';
+        } else {
+            return 'A solicitação não foi realizada!';
+        }
     }
 }
