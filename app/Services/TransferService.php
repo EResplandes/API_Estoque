@@ -158,7 +158,7 @@ class TransferService
                 return collect($item)->except(['created_at', 'updated_at', 'fk_category'])->toArray();
             });
 
-        // 3º Passo -> Resposta para a requisição com todas as solicitações
+        // 3º Passo -> Resposta para a requisição com todas as solicitaçõess
         return response()->json(['Response' => $requestsforMe]);
     }
 
