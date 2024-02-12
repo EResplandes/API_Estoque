@@ -46,7 +46,7 @@ class TransferService
                 return 'A quantidade solicitada para o material com o ID ' . $fk_material['id'] . ' não foi encontrada.';
             }
         }
-
+        
         // 5º Passo -> Resposta para a requisição
         return 'Transferências solicitadas com sucesso!';
     }
@@ -151,6 +151,7 @@ class TransferService
         // 2ª Passo -> Verificar se tem algum desses ID na tabela de solicitação de transferencia
         $requestsforMe = DB::table('material_transfer')
             ->whereIn('fk_material', $myStock)
+            ->where('fk_status', 1)
             ->join('stock', 'stock.id', '=', 'material_transfer.fk_material')
             ->select('material_transfer.*', 'stock.*')
             ->get()
