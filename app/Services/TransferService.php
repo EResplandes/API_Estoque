@@ -46,7 +46,7 @@ class TransferService
                 return 'A quantidade solicitada para o material com o ID ' . $fk_material['id'] . ' não foi encontrada.';
             }
         }
-        
+
         // 5º Passo -> Resposta para a requisição
         return 'Transferências solicitadas com sucesso!';
     }
@@ -74,7 +74,9 @@ class TransferService
 
         // 4ª Passo -> Inserir no estoque do solicitante
 
-        // 5º Passo -> Resposta para a requisição
+        // 5º Passo -> Pegar id do material inserido e alterar no número do pedido
+        
+        // 6º Passo -> Resposta para a requisição
         if ($removeItens) {
             return 'Transferência de material aprovada com sucesso!';
         } else {
@@ -153,7 +155,8 @@ class TransferService
             ->whereIn('fk_material', $myStock)
             ->where('fk_status', 1)
             ->join('stock', 'stock.id', '=', 'material_transfer.fk_material')
-            ->select('material_transfer.*', 'stock.*')
+            ->join('transfer_status', 'transfer_status.id', '=', 'material_transfer.fk_status')
+            ->select('material_transfer.id', 'material_transfer.quantity_request', 'material_transfer.requested_date' , 'material_transfer.fk_status', 'stock.name',  'stock.description', 'stock.description', 'transfer_status.status')
             ->get()
             ->map(function ($item) {
                 return collect($item)->except(['created_at', 'updated_at', 'fk_category'])->toArray();
