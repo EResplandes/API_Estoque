@@ -51,7 +51,7 @@ class TransferService
         return 'Transferências solicitadas com sucesso!';
     }
 
-    public function approval($id)
+    public function approval($id, $fk_companie)
     {
 
         // 1º Passo -> Alterar o status da solicitação para APROVADO e Inserir data da aprovação
@@ -72,12 +72,57 @@ class TransferService
                 ->decrement('amount', $informations[0]->quantity_request);
         }
 
-        // 4ª Passo -> Inserir no estoque do solicitante
-
-        // 5º Passo -> Pegar id do material inserido e alterar no número do pedido
-        
-        // 6º Passo -> Resposta para a requisição
+        // 4º Passo -> Pegar informações do material para serem inseridos
         if ($removeItens) {
+            $material = DB::table('stock')
+                ->where('id', $informations[0]->fk_material)
+                ->get();
+        }
+
+        // 5º Passo -> Montar array com informaçoes a serem inseridas
+        if ($material) {
+            $arrayData = [
+                'name' => $material[0]->name,
+                'description' => $material[0]->description,
+                'amount' => $informations[0]->quantity_request,
+                'dt_validity' => $material[0]->dt_validity,
+                'fk_companie' => $fk_companie,
+                'fk_category' => $material[0]->fk_category,
+                'image_directory' => $material[0]->image_directory
+            ];
+        }
+
+        // 6ª Passo -> Inserir no estoque do solicitante
+        if ($arrayData) {
+            $queryInsert = DB::table('stock')->insertGetId($arrayData);
+        }
+
+        // 7º Passo -> Pegar id do material e id do pedido
+        if ($queryInsert) {
+            $request = DB::table('material_transfer')
+                ->select('fk_request', 'fk_material')
+                ->get(); // Pegando número do pedido e o material
+        }
+
+        // // 8ª Passo -> Remover item do pedido
+        if ($request) {
+            $removeItem = DB::table('application_materials')
+                ->where('fk_request', $request[0]->fk_request)
+                ->where('fk_material', $request[0]->fk_material)
+                ->delete(); // Deleta item do pedido
+        }
+
+        // 9ª Passo -> Adicionar item no pedido 
+        if ($removeItem) {
+            $insertItem = DB::table('application_materials')
+                ->insert([
+                    'fk_request' => $request[0]->fk_request,
+                    'fk_material' => $queryInsert
+                ]); // Inseriondo item no pedido
+        }
+
+        // 10º Passo -> Resposta para a requisição
+        if ($insertItem) {
             return 'Transferência de material aprovada com sucesso!';
         } else {
             return 'Ocorreu algum problema, entre em contato com o administrador!';
@@ -156,7 +201,7 @@ class TransferService
             ->where('fk_status', 1)
             ->join('stock', 'stock.id', '=', 'material_transfer.fk_material')
             ->join('transfer_status', 'transfer_status.id', '=', 'material_transfer.fk_status')
-            ->select('material_transfer.id', 'material_transfer.quantity_request', 'material_transfer.requested_date' , 'material_transfer.fk_status', 'stock.name',  'stock.description', 'stock.description', 'transfer_status.status')
+            ->select('material_transfer.id', 'material_transfer.quantity_request', 'material_transfer.requested_date', 'material_transfer.fk_status', 'stock.name',  'stock.description', 'stock.description', 'transfer_status.status')
             ->get()
             ->map(function ($item) {
                 return collect($item)->except(['created_at', 'updated_at', 'fk_category'])->toArray();

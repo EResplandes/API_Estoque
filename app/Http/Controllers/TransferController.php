@@ -23,10 +23,10 @@ class TransferController extends Controller
 
     }
 
-    public function approval($id)
+    public function approval($id, $fk_companie)
     {
 
-        $query = $this->transferService->approval($id); // Aprovando solitação de transferência de material
+        $query = $this->transferService->approval($id, $fk_companie); // Aprovando solitação de transferência de material
         return response()->json(['Response' => $query]); // Retornando resposta
 
     }

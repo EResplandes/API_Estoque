@@ -61,7 +61,7 @@ Route::prefix('v1')->group(function () {
     // Rotas do Módulo de Transfêrencia de Estoque
     Route::prefix('/transfer')->middleware('jwt.auth')->group(function () {
         Route::post('/solicitation', [TransferController::class, 'solicitation']);
-        Route::put('/approval/{id}', [TransferController::class, 'approval']);
+        Route::put('/approval/{id}/{fk_companie}', [TransferController::class, 'approval']);
         Route::put('/disapproval/{id}', [TransferController::class, 'disapproval']);
         Route::get('/solicitations/{id}', [TransferController::class, 'mysolicitations']);
         Route::get('/solicitations/forme/{id}', [TransferController::class, 'requestForMe']);
