@@ -4,7 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
-
+use SebastianBergmann\CodeCoverage\Driver\Selector;
 
 class TransferService
 {
@@ -23,7 +23,7 @@ class TransferService
         $fk_materials = $request->input('fk_material');
 
         foreach ($fk_materials as $fk_material) {
-            // 2ª Passo -> Pegar quantidade solicitad'a do material
+            // 2ª Passo -> Pegar quantidade solicitada do material
             $amount = DB::table('application_materials')
                 ->select('amount')
                 ->where('fk_request', $infomations['fk_request'])
@@ -53,78 +53,104 @@ class TransferService
 
     public function approval($id, $fk_companie)
     {
+        DB::beginTransaction();
 
-        // 1º Passo -> Alterar o status da solicitação para APROVADO e Inserir data da aprovação
-        $query = DB::table('material_transfer')
-            ->where('id', $id)
-            ->update(['fk_status' => 3, 'response_date' => Carbon::now('America/Sao_Paulo')]);
+        try {
 
-        // 2º Passo -> Pegar id do material para retirar do estoque e pegar qunatidade solicitada
-        $informations = DB::table('material_transfer')
-            ->select('fk_material', 'quantity_request')
-            ->where('id', $id)
-            ->get();
+            // 1º Passo -> Alterar o status da solicitação para APROVADO e Inserir data da aprovação
+            $query = DB::table('material_transfer')
+                ->where('id', $id)
+                ->update(['fk_status' => 3, 'response_date' => Carbon::now('America/Sao_Paulo')]);
 
-        // 3º Passo -> Retirar itens do estoque
-        if ($query) {
-            $removeItens = DB::table('stock')
-                ->where('id', $informations[0]->fk_material)
-                ->decrement('amount', $informations[0]->quantity_request);
-        }
-
-        // 4º Passo -> Pegar informações do material para serem inseridos
-        if ($removeItens) {
-            $material = DB::table('stock')
-                ->where('id', $informations[0]->fk_material)
+            // 2º Passo -> Pegar id do material para retirar do estoque e pegar qunatidade solicitada
+            $informations = DB::table('material_transfer')
+                ->select('fk_material', 'quantity_request')
+                ->where('id', $id)
                 ->get();
-        }
 
-        // 5º Passo -> Montar array com informaçoes a serem inseridas
-        if ($material) {
-            $arrayData = [
-                'name' => $material[0]->name,
-                'description' => $material[0]->description,
-                'amount' => $informations[0]->quantity_request,
-                'dt_validity' => $material[0]->dt_validity,
-                'fk_companie' => $fk_companie,
-                'fk_category' => $material[0]->fk_category,
-                'image_directory' => $material[0]->image_directory
-            ];
-        }
+            // 3º Passo -> Retirar itens do estoque
+            if ($query) {
+                $removeItens = DB::table('stock')
+                    ->where('id', $informations[0]->fk_material)
+                    ->decrement('amount', $informations[0]->quantity_request);
+            }
 
-        // 6ª Passo -> Inserir no estoque do solicitante
-        if ($arrayData) {
-            $queryInsert = DB::table('stock')->insertGetId($arrayData);
-        }
+            // 4º Passo -> Pegar informações do material para serem inseridos
+            if ($removeItens) {
+                $material = DB::table('stock')
+                    ->where('id', $informations[0]->fk_material)
+                    ->get();
+            }
 
-        // 7º Passo -> Pegar id do material e id do pedido
-        if ($queryInsert) {
-            $request = DB::table('material_transfer')
-                ->select('fk_request', 'fk_material')
-                ->get(); // Pegando número do pedido e o material
-        }
+            // // 5º Passo -> Pegar id do usuário que fez a solicitação
+            // $fk_solicitation = DB::table('material_transfer')
+            //     ->join('requests', 'requests.id', '=', 'material_transfer.fk_request')
+            //     ->select('requests.fk_user')
+            //     ->get();
 
-        // // 8ª Passo -> Remover item do pedido
-        if ($request) {
-            $removeItem = DB::table('application_materials')
-                ->where('fk_request', $request[0]->fk_request)
-                ->where('fk_material', $request[0]->fk_material)
-                ->delete(); // Deleta item do pedido
-        }
+            // // 6º Passo -> Pegar id da compania desse usuário
+            // $fk_companie_solicitation = DB::table('users')
+            //     ->where('id', $fk_solicitation)
+            //     ->select('fk_companie')
+            //     ->get();
 
-        // 9ª Passo -> Adicionar item no pedido 
-        if ($removeItem) {
-            $insertItem = DB::table('application_materials')
-                ->insert([
-                    'fk_request' => $request[0]->fk_request,
-                    'fk_material' => $queryInsert
-                ]); // Inseriondo item no pedido
-        }
+            // dd($fk_companie_solicitation);
 
-        // 10º Passo -> Resposta para a requisição
-        if ($insertItem) {
+            // 7º Passo -> Montar array com informaçoes a serem inseridas
+            if ($material) {
+                $arrayData = [
+                    'name' => $material[0]->name,
+                    'description' => $material[0]->description,
+                    'amount' => $informations[0]->quantity_request,
+                    'dt_validity' => $material[0]->dt_validity,
+                    'fk_companie' => $fk_companie,
+                    'fk_category' => $material[0]->fk_category,
+                    'image_directory' => $material[0]->image_directory
+                ];
+            }
+
+            // 8ª Passo -> Inserir no estoque do solicitante
+            if ($arrayData) {
+                $queryInsert = DB::table('stock')->where('fk_companie', $fk_companie)->insertGetId($arrayData);
+            }
+
+            // 9º Passo -> Pegar id do material e id do pedido
+            if ($queryInsert) {
+                $request = DB::table('material_transfer')
+                    ->select('fk_request', 'fk_material')
+                    ->where('id', $id)
+                    ->get(); // Pegando número do pedido e o material
+            }
+
+            // 10ª Passo -> Remover item do pedido
+            if ($request) {
+                $removeItem = DB::table('application_materials')
+                    ->where('fk_request', $request[0]->fk_request)
+                    ->where('fk_material', $request[0]->fk_material)
+                    ->delete(); // Deleta item do pedido
+            }
+
+            // 11ª Passo -> Adicionar item no pedido 
+            if ($removeItem) {
+                $insertItem = DB::table('application_materials')
+                    ->insert([
+                        'fk_request' => $request[0]->fk_request,
+                        'fk_material' => $queryInsert,
+                        'amount' => $informations[0]->quantity_request
+                    ]); // Inseriondo item no pedido
+            }
+
+            // 12º Passo -> Salvando alterações
+            DB::commit();
+
+            // 13º Passo -> Retornando resposta
             return 'Transferência de material aprovada com sucesso!';
-        } else {
+        } catch (\Exception $e) {
+
+            // 1ª Passo -> Desafendo todas as alterações
+            DB::rollBack();
+
+            // 2º Passo -> Retornando resposta para o usuário
             return 'Ocorreu algum problema, entre em contato com o administrador!';
         }
     }
@@ -215,7 +241,7 @@ class TransferService
     {
 
         // 1º Passo -> Verificar se tem alguma solicitação de transferencia desse pedido
-        $query = DB::table('material_transfer')->where('fk_request', $id)->exists();
+        $query = DB::table('material_transfer')->where('fk_request', $id)->where('fk_status', 1)->exists();
 
         // 2ª Passo -> Retornar resposta
         if ($query) {
