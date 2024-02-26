@@ -82,19 +82,23 @@ class TransferService
                     ->get();
             }
 
-            // // 5º Passo -> Pegar id do usuário que fez a solicitação
-            // $fk_solicitation = DB::table('material_transfer')
-            //     ->join('requests', 'requests.id', '=', 'material_transfer.fk_request')
-            //     ->select('requests.fk_user')
-            //     ->get();
+            // 5º Passo -> Pegar id do pedido
+            $idRequest = DB::table('material_transfer')
+                ->select('fk_request')
+                ->where('id', $id)
+                ->get();
 
-            // // 6º Passo -> Pegar id da compania desse usuário
-            // $fk_companie_solicitation = DB::table('users')
-            //     ->where('id', $fk_solicitation)
-            //     ->select('fk_companie')
-            //     ->get();
+            // 5º Passo -> Pegar id do usuário que fez a solicitação
+            $fk_solicitation = DB::table('requests')
+                ->where('requests.id', $idRequest[0]->fk_request)
+                ->select('fk_user')
+                ->first();
 
-            // dd($fk_companie_solicitation);
+            // 6º Passo -> Pegar id da compania desse usuário
+            $fk_companie_solicitation = DB::table('users')
+                ->where('id', $fk_solicitation->fk_user)
+                ->select('fk_companie')
+                ->first();
 
             // 7º Passo -> Montar array com informaçoes a serem inseridas
             if ($material) {
@@ -103,7 +107,7 @@ class TransferService
                     'description' => $material[0]->description,
                     'amount' => $informations[0]->quantity_request,
                     'dt_validity' => $material[0]->dt_validity,
-                    'fk_companie' => $fk_companie,
+                    'fk_companie' => $fk_companie_solicitation->fk_companie,
                     'fk_category' => $material[0]->fk_category,
                     'image_directory' => $material[0]->image_directory
                 ];
@@ -111,7 +115,7 @@ class TransferService
 
             // 8ª Passo -> Inserir no estoque do solicitante
             if ($arrayData) {
-                $queryInsert = DB::table('stock')->where('fk_companie', $fk_companie)->insertGetId($arrayData);
+                $queryInsert = DB::table('stock')->where('fk_companie', $fk_companie_solicitation->fk_companie)->insertGetId($arrayData);
             }
 
             // 9º Passo -> Pegar id do material e id do pedido
