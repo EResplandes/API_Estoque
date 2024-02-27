@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 
 class StockService
 {
@@ -24,6 +25,7 @@ class StockService
                 'category.name AS category_name',
                 'stock.image_directory'
             )
+            ->where('stock.amount', '>', 0)
             ->get(); // Pegando todos os produtos
 
         return $query; // Retornando resposta
@@ -157,6 +159,10 @@ class StockService
             DB::table('stock')
                 ->where('id', $productId)
                 ->decrement('amount', $approvedAmount);
+
+            // Inserindo no histórico
+            DB::table('inclusion_history')
+                ->insert(['fk_stock' => $productId, 'date_inclusion' => Carbon::now('America/Sao_Paulo'), 'amount_inclusion' => '-' . $approvedAmount, 'fk_request' => $id]);
         }
 
         // Verificando se ocorreu a atualização no banco
@@ -184,5 +190,60 @@ class StockService
         } else {
             return 'Ocorreu algum problema, entre em contato com o administrador do sistema!'; // Retornando resposta
         }
+    }
+
+    public function addQuantity($request, $id)
+    {
+
+        DB::beginTransaction();
+
+        try {
+
+            // 1ª Passo -> Montar dados a serem inseridos na tabela inclusion_history
+            $arrayData = [
+                'fk_stock' => $id,
+                'date_inclusion' => Carbon::now('America/Sao_Paulo'),
+                'amount_inclusion' => $request->input('amount_inclusion'),
+            ];
+
+            // 2º Passo -> Registrar inclusão de quantidade na tabela inclusion_history
+            $queryInsert = DB::table('inclusion_history')->insert($arrayData);
+
+            // 3º Passo -> Incluir quantidade do material
+            if ($queryInsert) {
+                $queryUpdate = DB::table('stock')->where('id', $id)->increment('amount', $arrayData['amount_inclusion']);
+            }
+
+            // 4ª Passo -> Salvando alterações
+            if ($queryUpdate) {
+                DB::commit();
+            }
+
+            // 4º Passo -> Retornar resposta
+            if ($queryUpdate) {
+                return 'Inclusão de quantidade atualizada com sucesso!';
+            } else {
+                return 'Ocorreu algum problema, entre em contato com o administrador!';
+            }
+        } catch (\Exception $e) {
+
+            // 1ª Passo -> Desafendo todas as alterações
+            DB::rollBack();
+
+            // 2º Passo -> Retornando resposta para o usuário
+            return 'Ocorreu algum problema, entre em contato com o administrador!';
+        }
+    }
+
+    public function searchHistory($id)
+    {
+        // 1º Passo -> Buscar todos os registro de acordo com id do material
+        $query = DB::table('inclusion_history')
+            ->select('date_inclusion', 'amount_inclusion', 'fk_request')
+            ->where('fk_stock', $id)
+            ->get();
+
+        // 2ª Passo -> Retornar resposta
+        return $query;
     }
 }

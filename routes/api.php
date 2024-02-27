@@ -48,6 +48,8 @@ Route::prefix('v1')->group(function () {
         Route::post('/filter/{id}', [StockController::class, 'filter'])->middleware('validate.id');
         Route::put('/approval/{id}', [StockController::class, 'approval'])->middleware(['validate.disapproval', 'validate.id']);
         Route::put('/disapprove/{id}', [StockController::class, 'disapprove'])->middleware(['validate.aapproval', 'validate.id']);
+        Route::put('/add/quantity/{id}', [StockController::class, 'addQuantity'])->middleware('validate.id');
+        Route::get('/search/history/{id}', [StockController::class, 'searchHistory'])->middleware('validate.id');
     });
 
     // Rotas do Módulo de Pedidos

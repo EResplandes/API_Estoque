@@ -70,6 +70,21 @@ class StockController extends Controller
         $query = $this->stockService->disapproveRequest($request, $id); // Metódo responsável por reporvar pedido
         return response()->json(['Response' => $query]); // Retornando resposta para requisição
 
+    }
 
+    public function addQuantity(Request $request, $id)
+    {
+
+        $query = $this->stockService->addQuantity($request, $id); // Metódo responsável por adicionar quantidade em material
+        return response()->json(['Response' => $query]); // Retornando resposta
+
+    }
+
+    public function searchHistory($id)
+    {
+
+        $query = $this->stockService->searchHistory($id); // Metódo responsável por buscar histório de inclusão de itens
+        return response()->json(['Response' => $query]); // Retornando resposta
+        
     }
 }

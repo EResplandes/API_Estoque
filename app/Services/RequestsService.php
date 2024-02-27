@@ -42,6 +42,7 @@ class RequestsService
                 'order_status.status as order_status'
             )
             ->where('requests.fk_user', $id)
+            ->orderByDesc('requests.id')
             ->get();
 
         // Agrupa os materiais por pedido no resultado

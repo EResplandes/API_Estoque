@@ -4,7 +4,6 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
-use SebastianBergmann\CodeCoverage\Driver\Selector;
 
 class TransferService
 {
@@ -62,7 +61,7 @@ class TransferService
                 ->where('id', $id)
                 ->update(['fk_status' => 3, 'response_date' => Carbon::now('America/Sao_Paulo')]);
 
-            // 2º Passo -> Pegar id do material para retirar do estoque e pegar qunatidade solicitada
+            // 2º Passo -> Pegar id do material para retirar do estoque e pegar quantidade solicitada
             $informations = DB::table('material_transfer')
                 ->select('fk_material', 'quantity_request')
                 ->where('id', $id)
@@ -88,19 +87,19 @@ class TransferService
                 ->where('id', $id)
                 ->get();
 
-            // 5º Passo -> Pegar id do usuário que fez a solicitação
+            // 6º Passo -> Pegar id do usuário que fez a solicitação
             $fk_solicitation = DB::table('requests')
                 ->where('requests.id', $idRequest[0]->fk_request)
                 ->select('fk_user')
                 ->first();
 
-            // 6º Passo -> Pegar id da compania desse usuário
+            // 7º Passo -> Pegar id da compania desse usuário
             $fk_companie_solicitation = DB::table('users')
                 ->where('id', $fk_solicitation->fk_user)
                 ->select('fk_companie')
                 ->first();
 
-            // 7º Passo -> Montar array com informaçoes a serem inseridas
+            // 8º Passo -> Montar array com informaçoes a serem inseridas
             if ($material) {
                 $arrayData = [
                     'name' => $material[0]->name,
@@ -113,12 +112,12 @@ class TransferService
                 ];
             }
 
-            // 8ª Passo -> Inserir no estoque do solicitante
+            // 9ª Passo -> Inserir no estoque do solicitante
             if ($arrayData) {
                 $queryInsert = DB::table('stock')->where('fk_companie', $fk_companie_solicitation->fk_companie)->insertGetId($arrayData);
             }
 
-            // 9º Passo -> Pegar id do material e id do pedido
+            // 10º Passo -> Pegar id do material e id do pedido
             if ($queryInsert) {
                 $request = DB::table('material_transfer')
                     ->select('fk_request', 'fk_material')
@@ -126,7 +125,7 @@ class TransferService
                     ->get(); // Pegando número do pedido e o material
             }
 
-            // 10ª Passo -> Remover item do pedido
+            // 11ª Passo -> Remover item do pedido
             if ($request) {
                 $removeItem = DB::table('application_materials')
                     ->where('fk_request', $request[0]->fk_request)
@@ -134,7 +133,7 @@ class TransferService
                     ->delete(); // Deleta item do pedido
             }
 
-            // 11ª Passo -> Adicionar item no pedido 
+            // 12ª Passo -> Adicionar item no pedido 
             if ($removeItem) {
                 $insertItem = DB::table('application_materials')
                     ->insert([
@@ -144,10 +143,12 @@ class TransferService
                     ]); // Inseriondo item no pedido
             }
 
-            // 12º Passo -> Salvando alterações
-            DB::commit();
+            // 13º Passo -> Salvando alterações
+            if ($insertItem) {
+                DB::commit();
+            }
 
-            // 13º Passo -> Retornando resposta
+            // 14º Passo -> Retornando resposta
             return 'Transferência de material aprovada com sucesso!';
         } catch (\Exception $e) {
 
