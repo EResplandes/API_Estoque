@@ -3,12 +3,11 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\RequestsController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\TransferController;
 use App\Http\Controllers\UserController;
-use App\Services\StockService;
-use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -68,5 +67,11 @@ Route::prefix('v1')->group(function () {
         Route::get('/solicitations/{id}', [TransferController::class, 'mysolicitations']);
         Route::get('/solicitations/forme/{id}', [TransferController::class, 'requestForMe']);
         Route::get('/exists/{id}', [TransferController::class, 'checkRequest']);
+    });
+
+    // Rotas de Relatórios
+    Route::prefix('/reports')->middleware('jwt.auth')->group(function () {
+        Route::get('/stock/{id}', [ReportsController::class, 'stock'])->middleware('validate.id');
+        Route::get('/stockAll', [ReportsController::class, 'allStock']);
     });
 });
