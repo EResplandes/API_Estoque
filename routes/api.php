@@ -57,6 +57,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/searchAll/{id}', [RequestsController::class, 'searchWarehouse'])->middleware('validate.id');
         Route::get('/products/{id}', [RequestsController::class, 'getProducts'])->middleware('validate.id');
         Route::post('/registration', [RequestsController::class, 'registration']);
+        Route::get('/pdf/{id}', [RequestsController::class, 'pdf'])->middleware('validate.id');
     });
 
     // Rotas do Módulo de Transfêrencia de Estoque

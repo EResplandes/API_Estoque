@@ -8,14 +8,13 @@ use App\Services\RequestsService;
 
 class RequestsController extends Controller
 {
-    
+
     protected $requestsService;
 
     public function __construct(RequestsService $requestsService)
     {
-        
-        $this->requestsService = $requestsService;
 
+        $this->requestsService = $requestsService;
     }
 
     public function search($id)
@@ -39,7 +38,7 @@ class RequestsController extends Controller
 
         $query = $this->requestsService->getWarehouse($id); // Metódo responsável por pegar todos os pedidos de acordo com a empresa
         return response()->json(['Response' => $query]); // Retornando resposta
-        
+
     }
 
     public function getProducts($id)
@@ -50,4 +49,8 @@ class RequestsController extends Controller
 
     }
 
+    public function pdf($id)
+    {
+        $query = $this->requestsService->pdf($id); // Metódo responsável por gerar o PDF do pedido de material
+    }
 }
