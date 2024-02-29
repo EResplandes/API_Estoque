@@ -12,22 +12,19 @@ use DateTimeZone;
 class ReportsService
 {
 
-    public function stock($id)
+    public function stock($request)
     {
 
-        // 1º Passo -> Pegando Data e Hora de foi Gerado o PDF
-        $dataAtual = date('d/m/Y', strtotime('today'));
-        $timezone = new DateTimeZone('America/Sao_Paulo'); // Configura o fuso horário para Brasília
-        $date = new DateTime('now', $timezone); // Obtém a data e hora atual considerando o fuso horário
-        $dateTime = $date->format('d/m/Y H:i:s');
+        // 1º Passo -> Pegando Data e Hora que foi Gerado o PDF
+        $dateTime = $this->date();
 
-        // 1º Passo -> Buscar nome da empresa
+        // 2º Passo -> Buscar nome da empresa
         $companie = DB::table('companies')
             ->select('name')
-            ->where('id', $id)
+            ->where('id', $request->input('company'))
             ->get();
 
-        // 2º Passo -> Pegando todos os itens com suas devidas categorias
+        // 3º Passo -> Pegando todos os itens com suas devidas categorias
         $informations = DB::table('stock')
             ->join('category', 'category.id', '=', 'stock.fk_category')
             ->join('companies', 'companies.id', '=', 'stock.fk_companie')
@@ -40,11 +37,21 @@ class ReportsService
                 'companies.name AS companie_name',
                 'category.name AS category_name',
                 'stock.image_directory'
-            )
-            ->where('stock.fk_companie', $id)
-            ->get(); // Pegando todos os produtos
+            );
 
-        // 3º Passo -> Gerando PDF
+        // Verifica se existe a company definida
+        if ($request->has('company')) {
+            $informations = $informations->where('fk_companie', $request->input('company'));
+        }
+
+        // Verifica se existe a company definida
+        if ($request->has('category')) {
+            $informations = $informations->where('fk_category', $request->input('category'));
+        }
+
+        $informations = $informations->get(); // Pegando informações
+
+        // 4º Passo -> Gerando PDF
         $pdf = new Dompdf();
         $pdf->loadHtml(view('reports.stock', ['informations' => $informations, 'companie' => $companie[0]->name, 'dateTime' => $dateTime]));
         $pdf->setPaper('A4', 'landscape');
@@ -53,50 +60,126 @@ class ReportsService
         return $pdf->stream('meu_pdf.pdf');
     }
 
-    public function allStock()
+    public function requests($request)
     {
 
-        // 1º Passo -> Pegando Data e Hora de foi Gerado o PDF
-        $dataAtual = date('d/m/Y', strtotime('today'));
-        $timezone = new DateTimeZone('America/Sao_Paulo'); // Configura o fuso horário para Brasília
-        $date = new DateTime('now', $timezone); // Obtém a data e hora atual considerando o fuso horário
-        $dateTime = $date->format('d/m/Y H:i:s');
+        // 1º Passo -> Pegando Data e Hora que foi Gerado o PDF
+        $dateTime = $this->date();
 
+        // 2º Passo -> Buscar nome da empresa
+        $company = "";
+        if ($request->has('company')) {
+            $company = DB::table('companies')
+                ->select('name')
+                ->where('id', $request->input('company'))
+                ->get();
 
-        // Pegando todos os itens com suas devidas categorias
-        $informations = DB::table('stock')
-            ->join('category', 'category.id', '=', 'stock.fk_category')
-            ->join('companies', 'companies.id', '=', 'stock.fk_companie')
-            ->select(
-                'stock.id AS id_stock',
-                'stock.name AS material_name',
+            $company = $company[0]->name;
+        }
+
+        // 2º Passo -> Buscasr todos pedidos
+        $query = DB::table('requests')
+            ->leftJoin('application_materials', 'requests.id', '=', 'application_materials.fk_request')
+            ->leftJoin('stock', 'stock.id', '=', 'application_materials.fk_material')
+            ->join('users', 'users.id', '=', 'requests.fk_user')
+            ->join('order_status', 'order_status.id', '=', 'requests.fk_status')
+            ->join('companies', 'companies.id', '=', 'users.fk_companie') // Relacionamento entre companies e users
+            ->groupBy(
+                'requests.id',
+                'requests.dt_opening',
+                'requests.observations',
+                'requests.application',
+                'requests.fk_status',
+                'stock.name',
                 'stock.description',
-                'stock.amount',
+                'application_materials.amount',
                 'stock.dt_validity',
-                'companies.name AS companie_name',
-                'category.name AS category_name',
-                'stock.image_directory'
+                'stock.image_directory',
+                'users.name',
+                'order_status.status'
             )
-            ->orderByDesc('companie_name')
-            ->get(); // Pegando todos os produtos
+            ->select(
+                'requests.id as request_id',
+                'requests.dt_opening as request_dt_opening',
+                'requests.observations as request_observation',
+                'requests.application as request_application',
+                'requests.fk_status',
+                'stock.name as material_name',
+                'stock.description as material_description',
+                'application_materials.amount as material_amount',
+                'stock.dt_validity as material_dt_validity',
+                'stock.image_directory as material_image_directory',
+                'users.name as user_name',
+                'order_status.status as order_status'
+            )
+            ->orderByDesc('requests.id');
 
+        // Verifica se existe a company definida
+        if ($request->has('company')) {
+            $query = $query->where('companies.id', $request->input('company')); // Adiciona a condição para filtrar por id da empresa
+        }
 
-        // Gerando PDF
+        // Verifica se existe a initial_date e end_date definida
+        if ($request->has('initial_date') && $request->has('end_date')) {
+            $query = $query->whereBetween('requests.dt_opening', [$request->input('initial_date'), $request->input('end_date')]);
+        }
+
+        // Verifica se existe a user definida
+        if ($request->has('user')) {
+            $query = $query->where('users.id', $request->input('fk_user'));
+        }
+
+        // Verifica se existe a user definida
+        if ($request->has('status')) {
+            $query = $query->where('requests.fk_status', $request->input('status'));
+        }
+
+        // Executando query
+        $query = $query->get();
+
+        // Agrupa os materiais por pedido no resultado
+        $results = $query->groupBy('request_id')->map(function ($group) {
+            return [
+                'request_id' => $group[0]->request_id,
+                'request_dt_opening' => $group[0]->request_dt_opening,
+                'request_observation' => $group[0]->request_observation,
+                'request_application' => $group[0]->request_application,
+                'user_name' => $group[0]->user_name,
+                'order_status' => $group[0]->order_status,
+                'materials' => $group->map(function ($item) {
+                    return [
+                        'material_name' => $item->material_name,
+                        'material_description' => $item->material_description,
+                        'material_amount' => $item->material_amount,
+                        'material_dt_validity' => $item->material_dt_validity,
+                        'material_image_directory' => $item->material_image_directory,
+                    ];
+                })->toArray(),
+            ];
+        })->values()->toArray();
+
+        // Gerar PDF
         $pdf = new Dompdf();
-        $pdf->loadHtml(view('reports.stock', ['informations' => $informations, 'dateTime' => $dateTime]));
-        $pdf->setPaper('A4', 'landscape');
+        $pdf->loadHtml(view('reports.requests', ['results' => $results, 'dateTime' => $dateTime, 'company' => $company]));
+        $pdf->setPaper('A4');
         $pdf->render();
 
         return $pdf->stream('meu_pdf.pdf');
     }
 
-    public function requests($request)
+    public function transfers($request)
     {
         dd($request);
     }
 
-    public function transfers($request)
+    public function date()
     {
-        dd($request);
+        // 1º Passo -> Pegando Data e Hora que foi Gerado o PDF
+        $dataAtual = date('d/m/Y', strtotime('today'));
+        $timezone = new DateTimeZone('America/Sao_Paulo'); // Configura o fuso horário para Brasília
+        $date = new DateTime('now', $timezone); // Obtém a data e hora atual considerando o fuso horário
+        $dateTime = $date->format('d/m/Y H:i:s');
+
+        return $dateTime;
     }
 }

@@ -35,6 +35,7 @@
 
             <div style="text-align: center;" class="col-12">
                 <img src="../../../public/img/logo.png">
+                <img src="https://www.gruporialma.com.br/wp-content/uploads/2024/02/wallpaper-Rialma.png" alt="">
                 <h3>RELATÓRIO DE ESTOQUE | {{ !empty($companie) ? $companie : 'GERAL' }} </h3>
                 <br>
             </div>

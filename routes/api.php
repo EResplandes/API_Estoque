@@ -71,7 +71,7 @@ Route::prefix('v1')->group(function () {
 
     // Rotas de Relatórios
     Route::prefix('/reports')->middleware('jwt.auth')->group(function () {
-        Route::get('/stock/{id}', [ReportsController::class, 'stock'])->middleware('validate.id');
-        Route::get('/stockAll', [ReportsController::class, 'allStock']);
+        Route::post('/stock', [ReportsController::class, 'stock']);
+        Route::post('/requests', [ReportsController::class, 'requests']);
     });
 });
