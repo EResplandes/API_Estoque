@@ -59,7 +59,6 @@ Route::prefix('v1')->group(function () {
         Route::get('/products/{id}', [RequestsController::class, 'getProducts'])->middleware('validate.id');
         Route::post('/registration', [RequestsController::class, 'registration']);
     });
-    
     Route::get('/pdf/{id}', [RequestsController::class, 'pdf'])->middleware('validate.id');
 
 
@@ -74,8 +73,8 @@ Route::prefix('v1')->group(function () {
     });
 
     // Rotas de Relatórios
-    Route::prefix('/reports')->middleware('jwt.auth')->group(function () {
-        Route::post('/stock', [ReportsController::class, 'stock']);
+    Route::prefix('/reports')->group(function () {
+        Route::get('/stock/{company?}/{category?}', [ReportsController::class, 'stock']);
         Route::post('/requests', [ReportsController::class, 'requests']);
     });
 });

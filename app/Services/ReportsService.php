@@ -12,17 +12,20 @@ use DateTimeZone;
 class ReportsService
 {
 
-    public function stock($request)
+    public function stock($company, $category)
     {
 
         // 1º Passo -> Pegando Data e Hora que foi Gerado o PDF
         $dateTime = $this->date();
 
         // 2º Passo -> Buscar nome da empresa
-        $companie = DB::table('companies')
-            ->select('name')
-            ->where('id', $request->input('company'))
-            ->get();
+        $companie = [];
+        if (!empty($company)) {
+            $companie = DB::table('companies')
+                ->select('name')
+                ->where('id', $company)
+                ->get();
+        }
 
         // 3º Passo -> Pegando todos os itens com suas devidas categorias
         $informations = DB::table('stock')
@@ -40,24 +43,24 @@ class ReportsService
             );
 
         // Verifica se existe a company definida
-        if ($request->has('company')) {
-            $informations = $informations->where('fk_companie', $request->input('company'));
+        if ($company) {
+            $informations = $informations->where('fk_companie', $company);
         }
 
         // Verifica se existe a company definida
-        if ($request->has('category')) {
-            $informations = $informations->where('fk_category', $request->input('category'));
+        if ($category) {
+            $informations = $informations->where('fk_category', $category);
         }
 
         $informations = $informations->get(); // Pegando informações
 
         // 4º Passo -> Gerando PDF
         $pdf = new Dompdf();
-        $pdf->loadHtml(view('reports.stock', ['informations' => $informations, 'companie' => $companie[0]->name, 'dateTime' => $dateTime]));
+        $pdf->loadHtml(view('reports.stock', ['informations' => $informations, 'companie' => $companie, 'dateTime' => $dateTime]));
         $pdf->setPaper('A4', 'landscape');
         $pdf->render();
 
-        return $pdf->stream('meu_pdf.pdf');
+        return $pdf->stream('relatorio_estoque.pdf');
     }
 
     public function requests($request)

@@ -15,9 +15,9 @@ class ReportsController extends Controller
         $this->reportsService = $reportsService;
     }
 
-    public function stock(Request $request)
+    public function stock($company = null, $category = null)
     {
-        $query = $this->reportsService->stock($request); // Metódo responsável por gerar relatório de estoque
+        $query = $this->reportsService->stock($company, $category); // Metódo responsável por gerar relatório de estoque
     }
 
     public function requests(Request $request)
