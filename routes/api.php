@@ -9,6 +9,7 @@ use App\Http\Controllers\StockController;
 use App\Http\Controllers\TransferController;
 use App\Http\Controllers\UserController;
 
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -57,8 +58,10 @@ Route::prefix('v1')->group(function () {
         Route::get('/searchAll/{id}', [RequestsController::class, 'searchWarehouse'])->middleware('validate.id');
         Route::get('/products/{id}', [RequestsController::class, 'getProducts'])->middleware('validate.id');
         Route::post('/registration', [RequestsController::class, 'registration']);
-        Route::get('/pdf/{id}', [RequestsController::class, 'pdf'])->middleware('validate.id');
     });
+    
+    Route::get('/pdf/{id}', [RequestsController::class, 'pdf'])->middleware('validate.id');
+
 
     // Rotas do Módulo de Transfêrencia de Estoque
     Route::prefix('/transfer')->middleware('jwt.auth')->group(function () {
