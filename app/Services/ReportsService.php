@@ -63,24 +63,24 @@ class ReportsService
         return $pdf->stream('relatorio_estoque.pdf');
     }
 
-    public function requests($request)
+    public function requests($company, $user, $status, $initial_date, $end_date)
     {
 
         // 1º Passo -> Pegando Data e Hora que foi Gerado o PDF
         $dateTime = $this->date();
 
         // 2º Passo -> Buscar nome da empresa
-        $company = "";
-        if ($request->has('company')) {
-            $company = DB::table('companies')
+        $companie = "";
+        if ($company) {
+            $companie = DB::table('companies')
                 ->select('name')
-                ->where('id', $request->input('company'))
+                ->where('id', $company)
                 ->get();
 
-            $company = $company[0]->name;
+            $companie = $companie[0]->name;
         }
 
-        // 2º Passo -> Buscasr todos pedidos
+        // 3º Passo -> Buscasr todos pedidos
         $query = DB::table('requests')
             ->leftJoin('application_materials', 'requests.id', '=', 'application_materials.fk_request')
             ->leftJoin('stock', 'stock.id', '=', 'application_materials.fk_material')
@@ -118,23 +118,23 @@ class ReportsService
             ->orderByDesc('requests.id');
 
         // Verifica se existe a company definida
-        if ($request->has('company')) {
-            $query = $query->where('companies.id', $request->input('company')); // Adiciona a condição para filtrar por id da empresa
+        if ($company) {
+            $query = $query->where('companies.id', $company); // Adiciona a condição para filtrar por id da empresa
         }
 
         // Verifica se existe a initial_date e end_date definida
-        if ($request->has('initial_date') && $request->has('end_date')) {
-            $query = $query->whereBetween('requests.dt_opening', [$request->input('initial_date'), $request->input('end_date')]);
+        if ($initial_date && $end_date) {
+            $query = $query->whereBetween('requests.dt_opening', [$initial_date, $end_date]);
         }
 
         // Verifica se existe a user definida
-        if ($request->has('user')) {
-            $query = $query->where('users.id', $request->input('fk_user'));
+        if ($user) {
+            $query = $query->where('users.id', $user);
         }
 
         // Verifica se existe a user definida
-        if ($request->has('status')) {
-            $query = $query->where('requests.fk_status', $request->input('status'));
+        if ($status) {
+            $query = $query->where('requests.fk_status', $status);
         }
 
         // Executando query
@@ -160,10 +160,9 @@ class ReportsService
                 })->toArray(),
             ];
         })->values()->toArray();
-
         // Gerar PDF
         $pdf = new Dompdf();
-        $pdf->loadHtml(view('reports.requests', ['results' => $results, 'dateTime' => $dateTime, 'company' => $company]));
+        $pdf->loadHtml(view('reports.requests', ['results' => $results, 'dateTime' => $dateTime, 'company' => $companie]));
         $pdf->setPaper('A4');
         $pdf->render();
 

@@ -9,7 +9,6 @@ use App\Http\Controllers\StockController;
 use App\Http\Controllers\TransferController;
 use App\Http\Controllers\UserController;
 
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -59,6 +58,8 @@ Route::prefix('v1')->group(function () {
         Route::get('/products/{id}', [RequestsController::class, 'getProducts'])->middleware('validate.id');
         Route::post('/registration', [RequestsController::class, 'registration']);
     });
+
+    // Rota responsável por gerar PDF do Pedido de Material
     Route::get('/pdf/{id}', [RequestsController::class, 'pdf'])->middleware('validate.id');
 
 
@@ -75,6 +76,6 @@ Route::prefix('v1')->group(function () {
     // Rotas de Relatórios
     Route::prefix('/reports')->group(function () {
         Route::get('/stock/{company?}/{category?}', [ReportsController::class, 'stock']);
-        Route::post('/requests', [ReportsController::class, 'requests']);
+        Route::get('/requests/{company?}/{user?}/{status?}/{initial_date?}/{end_date?}', [ReportsController::class, 'requests']);
     });
 });
