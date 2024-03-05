@@ -160,6 +160,7 @@ class ReportsService
                 })->toArray(),
             ];
         })->values()->toArray();
+
         // Gerar PDF
         $pdf = new Dompdf();
         $pdf->loadHtml(view('reports.requests', ['results' => $results, 'dateTime' => $dateTime, 'company' => $companie]));

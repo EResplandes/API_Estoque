@@ -49,6 +49,7 @@ Route::prefix('v1')->group(function () {
         Route::put('/disapprove/{id}', [StockController::class, 'disapprove'])->middleware(['validate.aapproval', 'validate.id']);
         Route::put('/add/quantity/{id}', [StockController::class, 'addQuantity'])->middleware('validate.id');
         Route::get('/search/history/{id}', [StockController::class, 'searchHistory'])->middleware('validate.id');
+        Route::get('/companys', [StockController::class, 'getCompanys']);
     });
 
     // Rotas do Módulo de Pedidos

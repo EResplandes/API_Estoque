@@ -246,4 +246,13 @@ class StockService
         // 2ª Passo -> Retornar resposta
         return $query;
     }
+
+    public function getCompanys()
+    {
+        // 1º Passo -> Buscar todas empresas 
+        $query = DB::table('companies')->select('id', 'name')->get();
+
+        // 2º Passo -> Retornar resposta
+        return $query;
+    }
 }

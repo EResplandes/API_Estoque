@@ -87,4 +87,11 @@ class StockController extends Controller
         return response()->json(['Response' => $query]); // Retornando resposta
         
     }
+
+    public function getCompanys()
+    {
+        $query = $this->stockService->getCompanys(); // Metódo responsável por buscar todas empresas
+        return response()->json(['Response' => $query]); // Retornando resposta
+    }
+
 }

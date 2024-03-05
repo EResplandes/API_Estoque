@@ -27,7 +27,7 @@ class StockRequest extends FormRequest
             'name' => 'string|required|unique:stock',
             'description' => 'string|required',
             'amount' => 'integer|required',
-            'dt_validity' => 'date|required',
+            'dt_validity' => 'date',
             'fk_companie' => 'integer|required'
         ];
     }
